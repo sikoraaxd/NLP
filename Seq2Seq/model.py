@@ -1,9 +1,5 @@
 import torch
 import torch.nn as nn
-from torchtext.datasets import IMDB
-from torchtext.data.utils import get_tokenizer
-from collections import Counter
-from torchtext.vocab import Vocab
 import random
 
 
@@ -37,7 +33,7 @@ class Decoder(nn.Module):
     
 
     def forward(self, x, hidden, cell):
-        x = torch.unsqueeze(0)
+        x = x.unsqueeze(0)
         embedding = self.dropout(self.embedding(x))
 
         outputs, (hidden, cell) = self.lstm(embedding, (hidden, cell))
@@ -54,10 +50,10 @@ class Seq2Seq(nn.Module):
         self.decoder = decoder
 
     
-    def forward(self, source, target, tvs, tfr=0.5):
+    def forward(self, source, target, target_vocab, tfr=0.5):
         batch_size = source.shape[1]
         target_size = target.shape[0]
-        target_vocab_size = len(tvs)
+        target_vocab_size = len(target_vocab)
 
         outputs = torch.zeros(target_size, batch_size, target_vocab_size)
 
