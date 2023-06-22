@@ -12,9 +12,9 @@ import boto3
 
 warnings.filterwarnings('ignore')
 
-TRAIN_SIZE = 0.6
+TRAIN_SIZE = 0.7
 LR = 0.001
-EPOCHS = 30
+EPOCHS = 50
 BATCH_SIZE = 64
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -131,7 +131,8 @@ criterion = nn.CrossEntropyLoss(ignore_index=pad_idx)
 optimizer = torch.optim.Adam(model.parameters(), lr=LR)
 
 state_checkpoints = []
-
+best_model = None
+best_loss = float('inf')
 for epoch in range(EPOCHS):
     for sources, targets in tqdm.tqdm(train_pipe):
         sources = sources.T.to(device)
@@ -148,6 +149,9 @@ for epoch in range(EPOCHS):
         optimizer.step()
     
     print(f'Epoch: {epoch}, loss: {loss.item()}')
+    if loss.item() < best_loss:
+        best_loss = loss.item()
+        best_model = model.state_dict()
     
     state_checkpoints.append({
         'epoch': epoch,
@@ -155,5 +159,5 @@ for epoch in range(EPOCHS):
         'state_dict': model.state_dict()
     })
 
-torch.save(model.cpu().state_dict(), 'ru_eng_seq2seq.pth')
+torch.save(best_model.cpu().state_dict(), 'ru_eng_seq2seq.pth')
 save_data('ru_eng_seq2seq.pth')

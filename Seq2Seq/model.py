@@ -50,12 +50,12 @@ class Seq2Seq(nn.Module):
         self.decoder = decoder
 
     
-    def forward(self, source, target, target_vocab, tfr=0.5):
+    def forward(self, source, target, target_vocab, device, tfr=0.5):
         batch_size = source.shape[1]
         target_size = target.shape[0]
         target_vocab_size = len(target_vocab)
 
-        outputs = torch.zeros(target_size, batch_size, target_vocab_size)
+        outputs = torch.zeros(target_size, batch_size, target_vocab_size).to(device)
 
         hidden, cell = self.encoder(source)
 
